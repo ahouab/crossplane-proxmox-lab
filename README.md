@@ -551,7 +551,7 @@ Le TP est réussi si :
 - API du provider : <https://marketplace.upbound.io/providers/valkiriaaquaticamendi/provider-proxmox-bpg/v1.18.0>
 - Provider Terraform BPG sous-jacent : <https://github.com/bpg/terraform-provider-proxmox>
 
-## Licence
+## Walter Assets Trademarks
 
 Le contenu original de ce laboratoire est distribué sous licence MIT. Crossplane,
 Proxmox VE, Ubuntu et les providers cités conservent leurs licences respectives.
