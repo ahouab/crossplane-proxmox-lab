@@ -1,0 +1,22 @@
+apiVersion: lab.example.org/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: platform-vm
+  namespace: crossplane-lab
+spec:
+  crossplane:
+    compositionRef:
+      name: proxmox-virtualmachine
+  vmId: 9120
+  nodeName: pve
+  templateVmId: 9000
+  templateNodeName: pve
+  datastoreId: local-lvm
+  bridge: vmbr0
+  providerConfigName: default
+  cores: 2
+  memoryMiB: 2048
+  diskGiB: 20
+  username: ubuntu
+  # Remplacer par le contenu complet de ~/.ssh/id_ed25519.pub.
+  sshPublicKey: ssh-ed25519 AAAA_A_REMPLACER utilisateur@poste

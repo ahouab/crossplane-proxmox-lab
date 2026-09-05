@@ -1,0 +1,12 @@
+apiVersion: proxmoxbpg.m.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: default
+  namespace: crossplane-lab
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: proxmox-credentials
+      namespace: crossplane-lab
+      key: credentials

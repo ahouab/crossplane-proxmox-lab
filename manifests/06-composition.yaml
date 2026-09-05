@@ -1,0 +1,144 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: proxmox-virtualmachine
+  labels:
+    provider: proxmox
+    implementation: bpg
+spec:
+  compositeTypeRef:
+    apiVersion: lab.example.org/v1alpha1
+    kind: VirtualMachine
+  mode: Pipeline
+  pipeline:
+    - step: create-proxmox-vm
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: proxmox-vm
+            base:
+              apiVersion: virtualenvironmentvm.proxmoxbpg.m.crossplane.io/v1alpha1
+              kind: EnvironmentVM
+              spec:
+                deletionPolicy: Delete
+                providerConfigRef:
+                  kind: ProviderConfig
+                  name: default
+                forProvider:
+                  name: placeholder
+                  description: VM geree par l API de plateforme Crossplane
+                  nodeName: pve
+                  vmId: 9999
+                  started: true
+                  onBoot: false
+                  stopOnDestroy: true
+                  clone:
+                    - vmId: 9000
+                      nodeName: pve
+                      datastoreId: local-lvm
+                      full: true
+                  cpu:
+                    - cores: 2
+                      sockets: 1
+                      type: host
+                  memory:
+                    - dedicated: 2048
+                  disk:
+                    - datastoreId: local-lvm
+                      interface: scsi0
+                      size: 20
+                  networkDevice:
+                    - bridge: vmbr0
+                      model: virtio
+                      firewall: true
+                  initialization:
+                    - datastoreId: local-lvm
+                      ipConfig:
+                        - ipv4:
+                            - address: dhcp
+                      userAccount:
+                        - username: ubuntu
+                          keys:
+                            - ssh-ed25519 PLACEHOLDER
+                  agent:
+                    - enabled: true
+                      timeout: 15m
+                      trim: true
+                      waitForIp:
+                        - ipv4: true
+                          ipv6: false
+                  operatingSystem:
+                    - type: l26
+                  scsiHardware: virtio-scsi-single
+                  serialDevice:
+                    - {}
+                  tags:
+                    - crossplane
+                    - platform
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: metadata.name
+                toFieldPath: spec.forProvider.name
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.vmId
+                toFieldPath: spec.forProvider.vmId
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.nodeName
+                toFieldPath: spec.forProvider.nodeName
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.templateVmId
+                toFieldPath: spec.forProvider.clone[0].vmId
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.templateNodeName
+                toFieldPath: spec.forProvider.clone[0].nodeName
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.datastoreId
+                toFieldPath: spec.forProvider.clone[0].datastoreId
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.datastoreId
+                toFieldPath: spec.forProvider.disk[0].datastoreId
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.datastoreId
+                toFieldPath: spec.forProvider.initialization[0].datastoreId
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.bridge
+                toFieldPath: spec.forProvider.networkDevice[0].bridge
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.cores
+                toFieldPath: spec.forProvider.cpu[0].cores
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.memoryMiB
+                toFieldPath: spec.forProvider.memory[0].dedicated
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.diskGiB
+                toFieldPath: spec.forProvider.disk[0].size
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.username
+                toFieldPath: spec.forProvider.initialization[0].userAccount[0].username
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.sshPublicKey
+                toFieldPath: spec.forProvider.initialization[0].userAccount[0].keys[0]
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.vlanId
+                toFieldPath: spec.forProvider.networkDevice[0].vlanId
+                policy:
+                  fromFieldPath: Optional
+              - type: ToCompositeFieldPath
+                fromFieldPath: status.atProvider.id
+                toFieldPath: status.proxmoxId
+                policy:
+                  fromFieldPath: Optional
+              - type: ToCompositeFieldPath
+                fromFieldPath: status.atProvider.ipv4Addresses
+                toFieldPath: status.ipv4Addresses
+                policy:
+                  fromFieldPath: Optional
+    - step: automatically-detect-readiness
+      functionRef:
+        name: function-auto-ready

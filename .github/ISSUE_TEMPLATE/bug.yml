@@ -1,0 +1,38 @@
+name: Signaler un problème
+description: Signaler une erreur reproductible dans le laboratoire
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Ne colle aucun token, kubeconfig, mot de passe ou endpoint privé.
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Versions de Proxmox, Kubernetes, Crossplane et du provider.
+      placeholder: Proxmox 9.x, K3s 1.x, Crossplane 2.4, provider 1.18.0
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Résultat observé et résultat attendu.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Étapes minimales, avec toutes les données privées masquées.
+    validations:
+      required: true
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Vérification de sécurité
+      options:
+        - label: J'ai retiré tous les secrets et éléments privés.
+          required: true

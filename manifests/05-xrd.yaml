@@ -1,0 +1,103 @@
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: virtualmachines.lab.example.org
+spec:
+  scope: Namespaced
+  group: lab.example.org
+  names:
+    kind: VirtualMachine
+    plural: virtualmachines
+    singular: virtualmachine
+    shortNames:
+      - vm
+  defaultCompositionRef:
+    name: proxmox-virtualmachine
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      additionalPrinterColumns:
+        - name: VMID
+          type: integer
+          jsonPath: .spec.vmId
+        - name: Node
+          type: string
+          jsonPath: .spec.nodeName
+        - name: IPv4
+          type: string
+          jsonPath: .status.ipv4Addresses[0][0]
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - vmId
+                - nodeName
+                - templateVmId
+                - templateNodeName
+                - datastoreId
+                - bridge
+                - sshPublicKey
+              properties:
+                vmId:
+                  type: integer
+                  minimum: 100
+                  maximum: 999999999
+                nodeName:
+                  type: string
+                  minLength: 1
+                templateVmId:
+                  type: integer
+                  minimum: 100
+                templateNodeName:
+                  type: string
+                  minLength: 1
+                datastoreId:
+                  type: string
+                  minLength: 1
+                bridge:
+                  type: string
+                  minLength: 1
+                providerConfigName:
+                  type: string
+                  default: default
+                cores:
+                  type: integer
+                  minimum: 1
+                  maximum: 16
+                  default: 2
+                memoryMiB:
+                  type: integer
+                  minimum: 512
+                  maximum: 65536
+                  default: 2048
+                diskGiB:
+                  type: integer
+                  minimum: 10
+                  maximum: 500
+                  default: 20
+                username:
+                  type: string
+                  minLength: 1
+                  default: ubuntu
+                sshPublicKey:
+                  type: string
+                  minLength: 20
+                vlanId:
+                  type: integer
+                  minimum: 1
+                  maximum: 4094
+            status:
+              type: object
+              properties:
+                proxmoxId:
+                  type: string
+                ipv4Addresses:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: string

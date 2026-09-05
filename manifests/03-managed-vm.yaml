@@ -1,0 +1,62 @@
+apiVersion: virtualenvironmentvm.proxmoxbpg.m.crossplane.io/v1alpha1
+kind: EnvironmentVM
+metadata:
+  name: direct-vm
+  namespace: crossplane-lab
+spec:
+  deletionPolicy: Delete
+  providerConfigRef:
+    kind: ProviderConfig
+    name: default
+  forProvider:
+    name: xp-direct-vm
+    description: VM de test geree directement par Crossplane
+    nodeName: pve
+    vmId: 9110
+    started: true
+    onBoot: false
+    stopOnDestroy: true
+    clone:
+      - vmId: 9000
+        nodeName: pve
+        datastoreId: local-lvm
+        full: true
+    cpu:
+      - cores: 2
+        sockets: 1
+        type: host
+    memory:
+      - dedicated: 2048
+    disk:
+      - datastoreId: local-lvm
+        interface: scsi0
+        size: 20
+    networkDevice:
+      - bridge: vmbr0
+        model: virtio
+        firewall: true
+    initialization:
+      - datastoreId: local-lvm
+        ipConfig:
+          - ipv4:
+              - address: dhcp
+        userAccount:
+          - username: ubuntu
+            keys:
+              # Remplacer par le contenu complet de ~/.ssh/id_ed25519.pub.
+              - ssh-ed25519 AAAA_A_REMPLACER utilisateur@poste
+    agent:
+      - enabled: true
+        timeout: 15m
+        trim: true
+        waitForIp:
+          - ipv4: true
+            ipv6: false
+    operatingSystem:
+      - type: l26
+    scsiHardware: virtio-scsi-single
+    serialDevice:
+      - {}
+    tags:
+      - crossplane
+      - lab
