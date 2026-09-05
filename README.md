@@ -19,7 +19,7 @@ Versions de référence au 5 septembre 2026 :
 ## Utiliser ce dépôt
 
 ```bash
-git clone https://github.com/TON-COMPTE/crossplane-proxmox-lab.git
+git clone https://github.com/ahouab/crossplane-proxmox-lab.git
 cd crossplane-proxmox-lab
 make help
 python3 -m venv .venv
